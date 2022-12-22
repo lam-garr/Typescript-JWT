@@ -3,6 +3,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 
+interface userAuthInterface extends Request {
+    user: any
+}
+
 export async function POST_sign_up(req:Request, res:Response, next: NextFunction){
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -26,5 +30,20 @@ export async function POST_log_in(req:Request, res:Response, next: NextFunction)
         res.json({accessToken:token});
     }else{
         res.status(400).json({message:"Error loggin in"});
+    }
+}
+
+export function GET_user(req:Request, res:Response, next: NextFunction){
+    const authHeader = req.headers["authorization"];
+
+    if(authHeader){
+        const token = authHeader.split(" ")[1];
+
+        jwt.verify(token, 'secret', (err, user)=>{
+            if(err){
+                return res.status(403).json({message:err})
+            }
+            res.json(user);
+        })
     }
 }

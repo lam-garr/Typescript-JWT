@@ -1,6 +1,0 @@
-curl -d "username=newuser2&password=password" -X POST http://localhost:3000/api/signup
-
-curl -d "username=newuser2&password=password" -X POST http://localhost:3000/api/login
-
-curl http://localhost:3000/
-

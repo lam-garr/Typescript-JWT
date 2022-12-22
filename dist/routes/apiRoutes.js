@@ -8,4 +8,5 @@ const apiController_1 = require("../controllers/apiController");
 const router = express_1.default.Router();
 router.post("/signup", apiController_1.POST_sign_up);
 router.post("/login", apiController_1.POST_log_in);
+router.get("/user", apiController_1.GET_user);
 exports.default = router;
