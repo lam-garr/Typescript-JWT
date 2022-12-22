@@ -40,8 +40,13 @@ const dotenv = __importStar(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_1 = __importDefault(require("./models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const mongoose_1 = __importDefault(require("mongoose"));
 dotenv.config();
 const app = (0, express_1.default)();
+const mongoDB = `${process.env.MONGODB}`;
+mongoose_1.default.connect(mongoDB);
+const db = mongoose_1.default.connection;
+db.on("error", console.log.bind(console, "db connection error"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.get("/", (req, res) => {
@@ -56,17 +61,19 @@ app.post("/signup", (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (err) {
             return next(err);
         }
-        res.json({ message: "succesully signed up" });
+        else {
+            res.json({ message: "succesully signed up" });
+        }
     });
 }));
 app.post("/login", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_1.default.findOne({ username: req.body.username });
     if (user && (yield bcrypt_1.default.compare(req.body.password, user.password))) {
-        const token = jsonwebtoken_1.default.sign(req.body.username, "password", { expiresIn: '15m' });
-        res.json({ token: token });
+        const token = jsonwebtoken_1.default.sign({ user }, "secret", { expiresIn: "15m" });
+        res.json({ accessToken: token });
     }
     else {
-        res.status(400).json({ message: "not user found" });
+        res.status(400).json({ message: "Error loggin in" });
     }
 }));
 app.listen(process.env.PORT, () => {

@@ -23,6 +23,7 @@ app.get("/", (req: Request, res: Response) => {
 })
 
 app.post("/signup", async (req:Request, res:Response, next: NextFunction) => {
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const user = new User({
@@ -31,9 +32,9 @@ app.post("/signup", async (req:Request, res:Response, next: NextFunction) => {
     }).save( err => {
         if(err){
             return next(err);
+        }else{
+            res.json({message: "succesully signed up"})
         }
-
-        res.json({message: "succesully signed up"})
     })
 })
 
@@ -41,10 +42,10 @@ app.post("/login", async(req:Request, res:Response, next: NextFunction) => {
     const user = await User.findOne({username: req.body.username});
 
     if(user && (await bcrypt.compare(req.body.password, user.password))){
-        const token = jwt.sign(req.body.username, "password", {expiresIn: '15m'})
-        res.json({token: token})
+        const token = jwt.sign({user}, "secret", {expiresIn: "15m"});
+        res.json({accessToken:token});
     }else{
-        res.status(400).json({message:"not user found"});
+        res.status(400).json({message:"Error loggin in"});
     }
 })
 
