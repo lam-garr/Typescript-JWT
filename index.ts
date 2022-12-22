@@ -3,10 +3,17 @@ import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import User from "./models/user";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
+
 
 dotenv.config();
 
 const app: Express = express();
+
+const mongoDB = `${process.env.MONGODB}`;
+mongoose.connect(mongoDB);
+const db = mongoose.connection;
+db.on("error", console.log.bind(console, "db connection error"));
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
@@ -30,8 +37,15 @@ app.post("/signup", async (req:Request, res:Response, next: NextFunction) => {
     })
 })
 
-app.post("/login", (req:Request, res:Response, next: NextFunction) => {
-    
+app.post("/login", async(req:Request, res:Response, next: NextFunction) => {
+    const user = await User.findOne({username: req.body.username});
+
+    if(user && (await bcrypt.compare(req.body.password, user.password))){
+        const token = jwt.sign(req.body.username, "password", {expiresIn: '15m'})
+        res.json({token: token})
+    }else{
+        res.status(400).json({message:"not user found"});
+    }
 })
 
 app.listen(process.env.PORT, () => {
