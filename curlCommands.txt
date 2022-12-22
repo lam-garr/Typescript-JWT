@@ -1,13 +1,6 @@
-curl -d "username=newuser2&password=password" -X POST http://localhost:3000/signup
+curl -d "username=newuser2&password=password" -X POST http://localhost:3000/api/signup
 
-curl -d "username=newuser2&password=password" -X POST http://localhost:3000/login
+curl -d "username=newuser2&password=password" -X POST http://localhost:3000/api/login
 
 curl http://localhost:3000/
 
-
-if(user && (await bcrypt.compare(req.body.password, user.password))){
-        const token = jwt.sign(req.body.username, "password", {expiresIn: '15m'})
-        res.json({token: token})
-    }else{
-        res.status(400).json({message:"not user found"});
-    }
